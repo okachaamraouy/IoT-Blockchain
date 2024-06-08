@@ -1,3 +1,4 @@
+# A Novel Library for Connecting Davis Vantage Pro 2 Weather Stations to the Internet via Single Board Computers with Minimal Resources.
 Meteorological stations are extensively used for gathering accurate Real-Time (RT) data, which is vital in smart and precision agriculture. 
 This work aims to make Davis Vantage Pro2 (VP2) weather station data accessible in RT by creating a simple library for Single-Board Computers (SBCs) with operating systems based on Linux, 
 regarding minimization of resources such as RAM, CPU, and power computing. This project aims to surpass the capabilities of the WeeWX weather system,
