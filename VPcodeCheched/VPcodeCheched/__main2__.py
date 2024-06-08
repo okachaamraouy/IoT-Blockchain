@@ -26,8 +26,7 @@ def main():
         time = data['Datetime']
         timewithoutcamma=str(time).split('.')
         replacedate = timewithoutcamma[0].replace("-","/")
-        date_format = datetime.datetime.strptime(replacedate,
-                                         "%Y/%m/%d %H:%M:%S")
+        date_format = datetime.datetime.strptime(replacedate,"%Y/%m/%d %H:%M:%S")
                                          
         timestamp = datetime.datetime.timestamp(date_format)
        
@@ -82,7 +81,4 @@ def send_command(command):
     send_string('at+{0}\r\n'.format(command))
                                                                                                                                                                                                                                                                                                                                            
 if __name__ == '__main__':
-    ###SEND Data Rate 5  
-    #sendDR(str(5))  console=tty1 root=PARTUUID=f645bebe-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles
-    #sleep(5)
     main()
