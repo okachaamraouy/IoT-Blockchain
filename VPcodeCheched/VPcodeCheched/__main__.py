@@ -35,7 +35,7 @@ def main():
         print(data['TempOut'])
         print(data['HumIn'])
         print(data['HumOut'])
-        #print(data['BarTrend'])
+        print(data['BarTrend'])
         print(data['WindSpeed'])
         print(data['WindDir'])
         print(data['RainDay'])
@@ -45,7 +45,7 @@ def main():
         print(data['SunRise'])
         print(data['SunSet'])
         print(data['Barometer'])
-        #print(data['ETDay'])
+        print(data['ETDay'])
        
         ### SEND VP2 data to rak811
         send(str(timestamp)+'a'+str(data['TempIn'])+'b'
