@@ -6,4 +6,5 @@ which is infeasible to implement on various types of SBCs with minimal resources
 This solution renders the VP2 weather station a flexible end device in the Internet of Things (IoT) networks. The library was developed as a novel weather station RT data acquisition, to facilitate communication with the VP2 console.
 In this work, we will get into steps to implement the solution, including development modeling of the library to visualize and design our system, the practical realization of the proposed system, 
 and a remote web application example to visualize VP2 weather station RT data.
+
 ![53591b5b-0f71-4d21-aeb2-8629bede4b70](https://github.com/okachaamraouy/2IaaS_Blockchain-Based-IoT-Platform/assets/75426884/0de7de79-5d4e-4a66-b96f-3522134065fd)
