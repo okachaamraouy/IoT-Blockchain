@@ -47,13 +47,11 @@ def main():
         print(data['Barometer'])
         #print(data['ETDay'])
        
-        ###SEND VP2 data to rak811
+        ### SEND VP2 data to rak811
         send(str(timestamp)+'a'+str(data['TempIn'])+'b'
                   +str(data['TempOut'])+'c'+str(data['HumIn'])+'d'
                   +str(data['HumOut'])+'e'+str(data['WindSpeed'])+'f'
-                  +str(data['WindDir'])+'g'
-        sleep(60)
-        send(str(data['RainDay'])+'h'
+                  +str(data['WindDir'])+'g' +str(data['RainDay'])+'h'
                   +str(data['SolarRad'])+'i'+str(data['UV'])+'j'
                   +str(data['RainRate']) +'k'+str(data['SunRise'])+'l'
                   +str(data['SunSet'])+'m'+str(data['Barometer'])+'n'))
