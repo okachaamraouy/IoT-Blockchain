@@ -1,5 +1,3 @@
-| <center><img src="./assets/rakstar.jpg" alt="RAKstar" width=25%></center>  | ![RAKWireless](./assets/RAK-Whirls.png) | [![Build Status](https://github.com/RAKWireless/RAK12035_SoilMoisture/workflows/RAK%20Library%20Build%20CI/badge.svg)](https://github.com/RAKWireless/RAK12035_SoilMoisture/actions) |
-| -- | -- | -- |
 
 # RAK12023/RAK12035 Soil Moisture Sensor
 
