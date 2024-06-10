@@ -1,15 +1,4 @@
-/**
- * @file app.cpp
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Application specific functions. Mandatory to have init_app(), 
- *        app_event_handler(), ble_data_handler(), lora_data_handler()
- *        and lora_tx_finished()
- * @version 0.1
- * @date 2021-04-23
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 
 #include "app.h"
 
