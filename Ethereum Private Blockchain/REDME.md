@@ -14,7 +14,7 @@ Step 1: Install the geth client
 
 The first thing we need to do is to download and install the Geth client. You should have access to geth binary before moving ahead.
 
-apt-get install software-properties-common
+'apt-get install software-properties-common'
 
 sudo add-apt-repository -y ppa:ethereum/ethereum
 
