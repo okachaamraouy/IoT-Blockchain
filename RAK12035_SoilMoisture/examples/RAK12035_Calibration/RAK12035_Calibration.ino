@@ -1,13 +1,4 @@
-/**
- * @file RAK12035_Calibration.ino
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Example for sensor calibration
- * @version 0.1
- * @date 2021-11-20
- * 
- * @copyright Copyright (c) 2021
- * 
-*/
+
 #include <Arduino.h>
 #include "RAK12035_SoilMoisture.h"
 
