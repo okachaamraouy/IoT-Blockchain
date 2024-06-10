@@ -1,13 +1,4 @@
-/**
- * @file user_at.cpp
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Handle user defined AT commands
- * @version 0.1
- * @date 2021-11-15
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 
 #include "app.h"
 
