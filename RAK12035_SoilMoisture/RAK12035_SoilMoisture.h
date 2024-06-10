@@ -1,13 +1,4 @@
-/**
- * @file RAK12035_SoilMoisture.h
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Header file for Class RAK12035
- * @version 0.1
- * @date 2021-11-20
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 #ifndef I2CSOILMOISTURESENSOR_H
 #define I2CSOILMOISTURESENSOR_H
 
