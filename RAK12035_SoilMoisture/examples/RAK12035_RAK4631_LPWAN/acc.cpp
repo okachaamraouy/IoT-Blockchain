@@ -1,13 +1,4 @@
-/**
- * @file acc.cpp
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief 3-axis accelerometer functions
- * @version 0.1
- * @date 2020-07-24
- * 
- * @copyright Copyright (c) 2020
- * 
- */
+
 #include "app.h"
 
 void acc_int_callback(void);
