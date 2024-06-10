@@ -1,14 +1,4 @@
-/**
- * @file app.h
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief For application specific includes and definitions
- *        Will be included from main.h
- * @version 0.1
- * @date 2021-04-23
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 
 #ifndef APP_H
 #define APP_H
