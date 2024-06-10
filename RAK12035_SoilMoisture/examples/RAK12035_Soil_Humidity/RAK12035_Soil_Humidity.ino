@@ -1,13 +1,4 @@
-/**
- * @file RAK12035_Soil_Humidity.ino
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Simple example to read data from the RAK12023/RAK12035 Soil Moisture Sensor
- * @version 0.1
- * @date 2021-11-20
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 #include <Arduino.h>
 #include "RAK12035_SoilMoisture.h"
 
