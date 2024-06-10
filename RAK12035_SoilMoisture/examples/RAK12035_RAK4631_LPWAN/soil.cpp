@@ -1,13 +1,4 @@
-/**
- * @file soil.cpp
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Soil sensor initialization and readings
- * @version 0.1
- * @date 2021-08-17
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 #include "app.h"
 
 /** Sensor */
