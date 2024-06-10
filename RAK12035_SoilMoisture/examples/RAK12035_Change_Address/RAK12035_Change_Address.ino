@@ -1,13 +1,4 @@
-/**
- * @file RAK12035_Change_Address.ino
- * @author Bernd Giesecke (bernd.giesecke@rakwireless.com)
- * @brief Example how to change the I2C address of the sensor
- * @version 0.1
- * @date 2021-11-20
- * 
- * @copyright Copyright (c) 2021
- * 
- */
+
 #include <Arduino.h>
 #include "RAK12035_SoilMoisture.h"
 
