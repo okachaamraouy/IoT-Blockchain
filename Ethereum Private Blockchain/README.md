@@ -128,6 +128,12 @@ Several accounts with addresses "0000000000000000000000000000000000000000" to "0
 Account "9B79560F0A82AF0A51A29467Cf9B1180C856CEb1" has a balance of "0x700000000000000000000000000000000000000000000000000000000000000".
 Account "49B75bc4b99Ff359b30f58D882fa4b738d4a5b70" has a balance of "0x800000000000000000000000000000000000000000000000000000000000000".
 Account "97C638FD33644FAF0502a76F303c0B0522e52fa3" has a balance of "0x900000000000000000000000000000000000000000000000000000000000000".
+
+The bellow Figure depicts the balance of the account 2 on the Metamask wallet:
+
+![Screenshot from 2024-04-24 18-36-22](https://github.com/okachaamraouy/2IaaS_Blockchain-Based-IoT-Platform/assets/75426884/3663c74f-d3fb-43f6-9d5f-6219039b13e2)
+
+
 number: "0x0", the block number of the genesis block.
 
 gasUsed: "0x0", the total gas used by transactions in this block.
@@ -183,13 +189,22 @@ geth: This is the command to run the Geth client.
 --http.api "admin,eth,debug,miner,net,txpool,personal,web3": Specifies the APIs available over the HTTP interface, including:
 
 admin: Node administration.
+
 eth: Ethereum blockchain.
+
 debug: Debugging functions.
+
 miner: Mining operations.
+
 net: Network information.
+
 txpool: Transaction pool.
+
 personal: Account management.
+
 web3: Web3.js utility functions.
+
+
 --allow-insecure-unlock: Allows insecure account unlocking via the RPC interface. This should be used with caution and ideally avoided in production.
 
 --unlock 0: Unlocks the first account (index 0) specified in the node’s keystore.
@@ -209,6 +224,7 @@ web3: Web3.js utility functions.
 console: Opens the Geth interactive JavaScript console, allowing the user to interact with the node directly.
 
 Discussion
+
 This command is designed to set up a Geth node with specific configurations aimed at running a private Ethereum network. The key points to note include:
 
 Network Isolation: By setting a custom networkid, the node will only connect to other nodes with the same network ID, ensuring it operates on a private network.
@@ -224,4 +240,70 @@ Security Considerations: Several options (--allow-insecure-unlock, --http.corsdo
 No Peer Discovery: By disabling peer discovery, the node will not attempt to find and connect to other nodes automatically. This can be useful for a controlled test environment but would need to be adjusted for a fully operational network where peer connections are necessary.
 
 Overall, this command is tailored for a development or testing environment, providing flexibility and ease of use, but it would require tightening of security settings for deployment in a production environment.
+
+The command output should have a enode value. This value represents the node. See the below snippet for example.
+
+![Screenshot from 2024-04-24 17-42-41](https://github.com/okachaamraouy/2IaaS_Blockchain-Based-IoT-Platform/assets/75426884/3ba11a96-fb0d-49a2-a6c2-da65cbf45ca9)
+
+# Step 5: Add one more node to the private blockchain
+
+We need a separate folder/directory for the datadir in the second node, but the genesis file will be the same. So let’s first initialize the second node. Use the below command for that:
+
+```blog
+geth --datadir ./node2 init genesis.json
+```
+To run the node, we need to change a few input parameters as discussed in the previous step. I have listed an example command below:
+
+```blog
+geth --datadir Node2 --networkid 1412 --http.addr "localhost" --port "30311" --authrpc.port "4546" --http.corsdomain "*" --http.api "admin,eth,debug,miner,net,txpool,personal,web3" --allow-insecure-unlock --unlock 0 --password password.txt --http.vhosts "*" --mine --miner.etherbase 0x49B75bc4b99Ff359b30f58D882fa4b738d4a5b70 --miner.threads 10 --nodiscover console
+```
+
+Take note of the enode value for this node also.
+
+```blog
+enode: ''enode://2901e179d1a5c2d38b9e648406869ce5579012c04e834b8ec29103ace310964978b6dc66cfa1331f15e8af2c34a53a1756e2d0215b6800dc5300e3072be80528@192.168.100.11:30311?discport=0''
+```
+
+We can repeat this process for any number of nodes as required.
+
+# Step 6: Connect node2 with node1 as peer
+
+For this post, we will add the peer nodes using a manual process. There are ways to automatic discovery of peers. We will cover that in the next post.
+
+Go to the node1 console and add the node2 enode value using admin.addPeer command. The command will look like the below:
+
+```blog
+admin.addPeer(''enode://2901e179d1a5c2d38b9e648406869ce5579012c04e834b8ec29103ace310964978b6dc66cfa1331f15e8af2c34a53a1756e2d0215b6800dc5300e3072be80528@192.168.100.11:30311?discport=0'')
+```
+
+After running the command, Check if the peer is added successfully by running the command admin.peers. 
+
+You can also run the admin.peers in the node2 console to see the enode for node1.
+
+There are different ways to create an account, but we will use the simplest one here. Run personal.newAccount() command on the console of both nodes and remember the Passphrase entered. 
+
+The command will return an address. It is the public address of your newly created account. Also, it will return the path of the private secret key file corresponding to this address. These two values combined are called public-private key pair.
+
+See the list of accounts and their balance using below commands:
+
+```blog
+# It will return list of accounts
+eth.accounts
+...
+
+#The first account is accounts[0], use that to get its balance
+eth.getBalance(eth.accounts[0])
+```
+
+To fund the account, let’s start mining!
+
+Go to the node1 console and type the below command to start mining. The value passed in the start method is the number of CPUs used.
+
+```blog
+miner.start(1)
+```
+
+Mining can be stopped at any time by command: miner.stop()
+
+
 
