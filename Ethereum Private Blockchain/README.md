@@ -172,56 +172,56 @@ This command initializes and starts a Geth (Go Ethereum) node with specific para
 Command Breakdown
 geth: This is the command to run the Geth client.
 
---datadir Node1: Specifies the data directory for the node, named Node1.
+* `--datadir Node1:` Specifies the data directory for the node, named Node1.
 
---networkid 1412: Sets the network ID to 1412, ensuring the node connects to the specified Ethereum network.
+* `--networkid 1412:` Sets the network ID to 1412, ensuring the node connects to the specified Ethereum network.
 
---http: Enables the HTTP-RPC server.
+* `--http:` Enables the HTTP-RPC server.
 
---http.port "8545": Sets the HTTP-RPC server port to 8545.
+* `--http.port "8545":` Sets the HTTP-RPC server port to 8545.
 
---http.addr "localhost": Binds the HTTP-RPC server to localhost.
+* `--http.addr "localhost":` Binds the HTTP-RPC server to localhost.
 
---port "30310": Sets the port for P2P communication to 30310.
+* `--port "30310":` Sets the port for P2P communication to 30310.
 
---http.corsdomain "*": Allows access to the HTTP-RPC server from any domain. This is useful for development but should be restricted in production environments for security reasons.
+* `--http.corsdomain "*":` Allows access to the HTTP-RPC server from any domain. This is useful for development but should be restricted in production environments for security reasons.
 
---http.api "admin,eth,debug,miner,net,txpool,personal,web3": Specifies the APIs available over the HTTP interface, including:
+* `--http.api "admin,eth,debug,miner,net,txpool,personal,web3":` Specifies the APIs available over the HTTP interface, including:
 
-admin: Node administration.
+* `admin:` Node administration.
 
-eth: Ethereum blockchain.
+* `eth:` Ethereum blockchain.
 
-debug: Debugging functions.
+* `debug:` Debugging functions.
 
-miner: Mining operations.
+* `miner:` Mining operations.
 
-net: Network information.
+* `net:` Network information.
 
-txpool: Transaction pool.
+* `txpool:` Transaction pool.
 
-personal: Account management.
+* `personal:` Account management.
 
-web3: Web3.js utility functions.
+* `web3:` Web3.js utility functions.
 
 
---allow-insecure-unlock: Allows insecure account unlocking via the RPC interface. This should be used with caution and ideally avoided in production.
+* `--allow-insecure-unlock:` Allows insecure account unlocking via the RPC interface. This should be used with caution and ideally avoided in production.
 
---unlock 0: Unlocks the first account (index 0) specified in the node’s keystore.
+* `--unlock 0:` Unlocks the first account (index 0) specified in the node’s keystore.
 
---password password.txt: Uses the password file password.txt to unlock the account.
+* `--password password.txt:` Uses the password file password.txt to unlock the account.
 
---http.vhosts "*": Allows access to the HTTP-RPC server from any virtual host. Again, this is useful for development but should be restricted in production.
+* `--http.vhosts "*":` Allows access to the HTTP-RPC server from any virtual host. Again, this is useful for development but should be restricted in production.
 
---mine: Starts the node in mining mode, meaning it will attempt to validate transactions and create new blocks.
+* `--mine:` Starts the node in mining mode, meaning it will attempt to validate transactions and create new blocks.
 
---miner.etherbase 0x49B75bc4b99Ff359b30f58D882fa4b738d4a5b70: Sets the etherbase (the account that receives mining rewards) to 0x49B75bc4b99Ff359b30f58D882fa4b738d4a5b70.
+* `--miner.etherbase 0x49B75bc4b99Ff359b30f58D882fa4b738d4a5b70:` Sets the etherbase (the account that receives mining rewards) to 0x49B75bc4b99Ff359b30f58D882fa4b738d4a5b70.
 
---miner.threads 10: Allocates 10 CPU threads for mining operations.
+* `--miner.threads 10:` Allocates 10 CPU threads for mining operations.
 
---nodiscover: Disables the node discovery mechanism, which means the node will not connect to other peers automatically. This is useful for private networks or isolated development environments.
+* `--nodiscover:` Disables the node discovery mechanism, which means the node will not connect to other peers automatically. This is useful for private networks or isolated development environments.
 
-console: Opens the Geth interactive JavaScript console, allowing the user to interact with the node directly.
+* `console:` Opens the Geth interactive JavaScript console, allowing the user to interact with the node directly.
 
 Discussion
 
