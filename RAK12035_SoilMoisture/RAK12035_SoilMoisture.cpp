@@ -3,7 +3,6 @@
  * I2C Soil Moisture Sensor version from Chrirp                         *
  * (https://github.com/Miceuz/i2c-moisture-sensor).                     *
  *                                                                      *
- * Ingo Fischer 11Nov2015                                               *
  * https://github.com/Apollon77/I2CSoilMoistureSensor                   *
  *                                                                      *
  * MIT license                                                          *
