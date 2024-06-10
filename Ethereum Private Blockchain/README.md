@@ -105,24 +105,24 @@ Genesis File Description
 
 config:
 
-chainId: 1412, a unique identifier for the blockchain network.
-homesteadBlock, eip150Block, eip150Hash, eip155Block, eip158Block, byzantiumBlock, constantinopleBlock, petersburgBlock, istanbulBlock, berlinBlock, londonBlock: All set to 0, indicating these Ethereum improvement proposals (EIPs) and hard forks are enabled from the genesis block.
-ethash: The mining algorithm used for proof-of-work (PoW).
-nonce: "0x0", a 64-bit value used to demonstrate proof-of-work in block mining.
+* `chainId:` 1412, a unique identifier for the blockchain network.
+* `homesteadBlock, eip150Block, eip150Hash, eip155Block, eip158Block, byzantiumBlock, constantinopleBlock, petersburgBlock, istanbulBlock, berlinBlock, londonBlock:` All set to 0, indicating these Ethereum improvement proposals (EIPs) and hard forks are enabled from the genesis block.
+* `ethash:` The mining algorithm used for proof-of-work (PoW).
+* `nonce:` "0x0", a 64-bit value used to demonstrate proof-of-work in block mining.
 
-timestamp: "0x64184068", the Unix timestamp for the genesis block creation.
+* `timestamp:` "0x64184068", the Unix timestamp for the genesis block creation.
 
-extraData: "0x0000000000000000000000000000000000000000000000000000000000000000", optional data that can be included by the miner.
+* `extraData:` "0x0000000000000000000000000000000000000000000000000000000000000000", optional data that can be included by the miner.
 
-difficulty: "2000", the initial difficulty level for mining.
+* `difficulty:` "2000", the initial difficulty level for mining.
 
-gasLimit: "3000000", the maximum amount of gas allowed per block.
+* `gasLimit:` "3000000", the maximum amount of gas allowed per block.
 
-mixHash: "0x0000000000000000000000000000000000000000000000000000000000000000", a hash used in the mining process.
+* `mixHash:` "0x0000000000000000000000000000000000000000000000000000000000000000", a hash used in the mining process.
 
-coinbase: "0x0000000000000000000000000000000000000000", the address that receives the mining rewards.
+* `coinbase:` "0x0000000000000000000000000000000000000000", the address that receives the mining rewards.
 
-alloc: Pre-allocated balances for specific accounts:
+* `alloc:` Pre-allocated balances for specific accounts:
 
 Several accounts with addresses "0000000000000000000000000000000000000000" to "00000000000000000000000000000000000000fd" each have a balance of "0x1".
 Account "9B79560F0A82AF0A51A29467Cf9B1180C856CEb1" has a balance of "0x700000000000000000000000000000000000000000000000000000000000000".
@@ -134,13 +134,13 @@ The bellow Figure depicts the balance of the account 2 on the Metamask wallet:
 ![Screenshot from 2024-04-24 18-36-22](https://github.com/okachaamraouy/2IaaS_Blockchain-Based-IoT-Platform/assets/75426884/3663c74f-d3fb-43f6-9d5f-6219039b13e2)
 
 
-number: "0x0", the block number of the genesis block.
+* `number:` "0x0", the block number of the genesis block.
 
-gasUsed: "0x0", the total gas used by transactions in this block.
+* `gasUsed:` "0x0", the total gas used by transactions in this block.
 
-parentHash: "0x0000000000000000000000000000000000000000000000000000000000000000", the hash of the parent block (none for the genesis block).
+* `parentHash:` "0x0000000000000000000000000000000000000000000000000000000000000000", the hash of the parent block (none for the genesis block).
 
-baseFeePerGas: null, indicating no base fee is set (relevant for EIP-1559, not applicable here).
+* `baseFeePerGas:` null, indicating no base fee is set (relevant for EIP-1559, not applicable here).
 
 # Step 3: Initiate the private blockchain
 
