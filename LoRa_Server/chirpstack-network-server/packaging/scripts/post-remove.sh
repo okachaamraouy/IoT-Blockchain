@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_NAME=loraserver
-NAME=chirpstack-network-server
+OLD_NAME=lora-app-server
+NAME=chirpstack-application-server
 
 function remove_systemd {
 	systemctl stop $NAME

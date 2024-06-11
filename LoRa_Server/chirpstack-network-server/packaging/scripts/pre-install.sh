@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_NAME=loraserver
-NAME=chirpstack-network-server
+OLD_NAME=lora-app-server
+NAME=chirpstack-application-server
 
 # migrate config to new location
 if [[ -f /etc/$OLD_NAME/$OLD_NAME.toml ]] && [[ ! -h /etc/$OLD_NAME/$OLD_NAME.toml ]] && [[ ! -f /etc/$NAME/$NAME.toml ]]; then

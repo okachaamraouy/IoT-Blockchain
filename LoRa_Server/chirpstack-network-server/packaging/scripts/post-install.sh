@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-OLD_NAME=loraserver
-NAME=chirpstack-network-server
+OLD_NAME=lora-app-server
+NAME=chirpstack-application-server
 BIN_DIR=/usr/bin
-SCRIPT_DIR=/usr/lib/chirpstack-network-server/scripts
-LOG_DIR=/var/log/chirpstack-network-server
-DAEMON_USER=networkserver
-DAEMON_GROUP=networkserver
+SCRIPT_DIR=/usr/lib/chirpstack-application-server/scripts
+LOG_DIR=/var/log/chirpstack-application-server
+DAEMON_USER=appserver
+DAEMON_GROUP=appserver
 
 function install_init {
 	cp -f $SCRIPT_DIR/$NAME.init /etc/init.d/$NAME
@@ -47,6 +47,7 @@ fi
 
 # create log dir
 create_logdir
+
 
 # set the configuration owner / permissions
 if [[ -f /etc/$NAME/$NAME.toml ]]; then
