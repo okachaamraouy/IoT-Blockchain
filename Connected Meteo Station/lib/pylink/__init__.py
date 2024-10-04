@@ -5,9 +5,6 @@
 
     The public API to pylink.
 
-    :copyright: Copyright 2012 Salem Harrache and contributors, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-
 '''
 VERSION = '0.3.3'
 __version__ = VERSION
