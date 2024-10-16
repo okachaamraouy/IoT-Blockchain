@@ -10,5 +10,8 @@ Creating a smart contract to manage data stored on IPFS involves integrating the
 - Design Smart Contract to Store IPFS Hash:
 
   You can design a smart contract to store and manage the IPFS hash, which acts as a pointer to your off-chain data. You’ll use this hash to retrieve the data from IPFS when needed.
-2.	
+
+- Interaction Between Smart Contract and IPFS:
+  In the smart contract, you can store, update, and retrieve the IPFS hash. The actual data will remain on IPFS, while the hash stored on-chain will point to it.
+  
 **`platformio.ini`**
