@@ -4,14 +4,22 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
 
 1. Registering Farmers and Stakeholders
    
-Farmers are registered in the system using registerFarmer. They are eligible to create proposals to request additional water or get rewards for conserving water.
-Stakeholders (e.g., regulatory bodies, NGOs) are added using addStakeholder. Stakeholders vote on proposals and help make decentralized decisions regarding water allocations.
-3. Proposal Creation by Farmers
-Farmers can create proposals using createProposal to request additional water. The proposal must include a description and the amount of water requested.
-Each proposal is stored with its associated information (e.g., water amount, farmer's address, number of votes).
-4. Voting on Proposals
-Stakeholders vote on each proposal by calling voteOnProposal. A farmer or stakeholder can only vote once on a particular proposal.
-The proposal is only executed if it receives a majority of votes from the registered stakeholders (stakeholders.length / 2).
+- Farmers are registered in the system using registerFarmer. They are eligible to create proposals to request additional water or get rewards for conserving water.
+  
+- Stakeholders (e.g., regulatory bodies, NGOs) are added using addStakeholder. Stakeholders vote on proposals and help make decentralized decisions regarding water allocations.
+
+2. Proposal Creation by Farmers
+   
+- Farmers can create proposals using createProposal to request additional water. The proposal must include a description and the amount of water requested.
+  
+- Each proposal is stored with its associated information (e.g., water amount, farmer's address, number of votes).
+  
+3. Voting on Proposals
+   
+- Stakeholders vote on each proposal by calling voteOnProposal. A farmer or stakeholder can only vote once on a particular proposal.
+  
+- The proposal is only executed if it receives a majority of votes from the registered stakeholders (stakeholders.length / 2).
+  
 5. Executing the Proposal
 Once a proposal gains enough votes, the contract owner executes it by calling executeProposal. This allocates the requested water to the farmer and deducts it from the total available water resources.
 6. Rewarding Water Conservation
