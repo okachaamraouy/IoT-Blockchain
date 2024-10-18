@@ -14,7 +14,7 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
 
    Farmers can create proposals to request additional water, which are then voted on by stakeholders (registered farmers and organizations).
 
-   - Farmers can create proposals using **`createProposal to request additional water. The proposal must include a description and the amount of water requested.
+   - Farmers can create proposals using **`createProposal`** to request additional water. The proposal must include a description and the amount of water requested.
      
    - Each proposal is stored with its associated information (e.g., water amount, farmer's address, number of votes).
   
