@@ -4,9 +4,9 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
 
 1. Registering Farmers and Stakeholders
    
-- Farmers are registered in the system using registerFarmer. They are eligible to create proposals to request additional water or get rewards for conserving water.
-  
-- Stakeholders (e.g., regulatory bodies, NGOs) are added using addStakeholder. Stakeholders vote on proposals and help make decentralized decisions regarding water allocations.
+   - Farmers are registered in the system using registerFarmer. They are eligible to create proposals to request additional water or get rewards for conserving water.
+     
+   - Stakeholders (e.g., regulatory bodies, NGOs) are added using addStakeholder. Stakeholders vote on proposals and help make decentralized decisions regarding water allocations.
 
 2. Proposal Creation by Farmers
    
