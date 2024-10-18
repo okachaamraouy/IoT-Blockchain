@@ -1,6 +1,12 @@
 # Explanation of Key Features and Flow
 
-This is a Solidity contract written in the 0.8.0 version of the language. It's called "Decentralized Water Governance". This smart contract works as a system for managing water resources and allocation among farmers.
+This is a Solidity contract written in the 0.8.13 version of the language. It's called "Decentralized Water Governance". This smart contract works as a system for managing water resources and allocation among farmers.
+
+The contract is modular, with separate functions for each of the following features. This makes it easier to understand and maintain the code.
+
+The contract emits events to notify users of changes, such as proposal creation, voting, execution, and rewards.
+
+Overall, this contract is a well-structured and well-documented system for managing water resources and allocation among farmers.
 
 1. Registering Farmers and Stakeholders
 
@@ -19,28 +25,32 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
    - Each proposal is stored with its associated information (e.g., water amount, farmer's address, number of votes).
   
 2. Voting on Proposals
+
+   Water is allocated to farmers based on their proposals, and the total available water resources are tracked.
    
    - Stakeholders vote on each proposal by calling **`voteOnProposal`**. A farmer or stakeholder can only vote once on a particular proposal.
      
    - The proposal is only executed if it receives a majority of votes from the registered stakeholders (**`stakeholders.length / 2`**).
   
-3. Executing the Proposal
+4. Executing the Proposal
    
    - Once a proposal gains enough votes, the contract owner executes it by calling **`executeProposal`**. This allocates the requested water to the farmer and deducts it from the total available water resources.
   
-4. Rewarding Water Conservation
+5. Rewarding Water Conservation
 
    - Farmers who conserve water (use less than the allocated water) are rewarded. The contract owner can call **`rewardForWaterConservation`** to credit the farmer’s reward balance.
      
    - The reward is proportional to the amount of water saved.
   
-5. Water Allocation and Resource Management
-   
+6. Water Allocation and Resource Management
+
+   The contract has an owner who can manage the system, including registering farmers, adding stakeholders, and modifying the water allocation and resources.
+
    - Dynamic Water Allocation: The contract owner can update the amount of water allocated to each farmer using **`changeWaterAllocation`** based on current water resource levels.
      
    - Resource Replenishment: More water resources can be added to the system through **`addWaterResources`**.
      
-6. Governance via Voting
+7. Governance via Voting
    
    - Voting and governance are conducted in a decentralized manner. Proposals are voted on by multiple stakeholders, and decisions are made based on majority rule.
      
