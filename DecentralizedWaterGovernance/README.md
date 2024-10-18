@@ -4,7 +4,7 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
 
 1. Registering Farmers and Stakeholders
 
-Farmers can be registered to the system, and their water consumption and reward balance can be tracked.
+   Farmers can be registered to the system, and their water consumption and reward balance can be tracked.
    
    - Farmers are registered in the system using **`registerFarmer`**. They are eligible to create proposals to request additional water or get rewards for conserving water.
      
@@ -12,7 +12,7 @@ Farmers can be registered to the system, and their water consumption and reward 
 
 2. Proposal Creation by Farmers
 
-Farmers can create proposals to request additional water, which are then voted on by stakeholders (registered farmers and organizations).
+   Farmers can create proposals to request additional water, which are then voted on by stakeholders (registered farmers and organizations).
 
    - Farmers can create proposals using **`createProposal to request additional water. The proposal must include a description and the amount of water requested.
      
