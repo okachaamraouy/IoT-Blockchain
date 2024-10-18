@@ -44,10 +44,10 @@ This is a Solidity contract written in the 0.8.0 version of the language. It's c
 
 # How It Works in a Collaborative Water Resource Management System
 
-1.Collaborative Decision Making: Farmers, regulatory bodies, and other stakeholders collaboratively manage water resources. When a farmer needs additional water, they submit a proposal, and stakeholders vote on whether the additional water should be allocated.
+1. Collaborative Decision Making: Farmers, regulatory bodies, and other stakeholders collaboratively manage water resources. When a farmer needs additional water, they submit a proposal, and stakeholders vote on whether the additional water should be allocated.
 
-2.Water Conservation Incentives: Farmers are rewarded with tokens for conserving water. These tokens may later be redeemed for benefits, or used as a form of credit for future water allocations.
+2. Water Conservation Incentives: Farmers are rewarded with tokens for conserving water. These tokens may later be redeemed for benefits, or used as a form of credit for future water allocations.
 
-3.Decentralized Governance: All decisions are decentralized, with no single authority controlling water allocations. Stakeholders have voting rights, making the process transparent and democratic.
+3. Decentralized Governance: All decisions are decentralized, with no single authority controlling water allocations. Stakeholders have voting rights, making the process transparent and democratic.
 
-4.Scalable and Transparent: This system is scalable to different regions and fields, and transparent for all participants. Every action (proposal, voting, water allocation) is visible on the blockchain, ensuring accountability.
+4. Scalable and Transparent: This system is scalable to different regions and fields, and transparent for all participants. Every action (proposal, voting, water allocation) is visible on the blockchain, ensuring accountability.
