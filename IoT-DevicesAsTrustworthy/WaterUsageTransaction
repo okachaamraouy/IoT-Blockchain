@@ -31,7 +31,7 @@ struct Transaction {
 };
 
 // Private and public keys
-uint8_t privateKey[32] = { /* Your private key here */ };
+uint8_t privateKey[32] = { /* Enter private key here */ };
 uint8_t publicKey[64];
 
 // Flow sensor settings
@@ -40,8 +40,8 @@ volatile uint32_t pulseCount = 0;
 float flowRate = 0.0;
 float totalLiters = 0.0;
 
-// Pulse count per liter (Adjust based on Sino-Inst's flow meter specification)
-const float pulsesPerLiter = 450.0;  // Replace with the actual value from Sino-Inst
+// Pulse count per liter (Adjust the following value based on the used water flow meter specification)
+const float pulsesPerLiter = 450.0;  // Replace with the actual value from the used water flow meter
 
 // Interrupt service routine to count pulses
 void IRAM_ATTR pulseCounter() {
