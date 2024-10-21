@@ -1,0 +1,200 @@
+################
+Twin Contract
+################
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract TwinContract {
+    address public owner;
+    uint256 public waterUsage;
+    uint256 public lastUpdated;
+    
+    // Restrict access to only the IoT device or system owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not authorized");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;  // Set the owner of the contract
+    }
+
+    // Update the water usage (can only be called by the IoT device or owner)
+    function setWaterUsage(uint256 _waterUsage) external onlyOwner {
+        waterUsage = _waterUsage;
+        lastUpdated = block.timestamp;  // Record the last update time
+    }
+
+    // Retrieve the current water usage
+    function getWaterUsage() external view returns (uint256) {
+        return waterUsage;
+    }
+
+    // Retrieve the timestamp of the last update
+    function getLastUpdated() external view returns (uint256) {
+        return lastUpdated;
+    }
+
+    // Transfer ownership (e.g., to a new IoT device or system admin)
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "New owner is the zero address");
+        owner = newOwner;
+    }
+}
+
+##################################################
+RewardsAppContract (Manages Water Consumption, Rewards)
+##################################################
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./TwinContract.sol";
+
+contract RewardsAppContract {
+    ERC20 public rewardToken;  // Token used for rewards
+    address public admin;  // Admin that controls reward distribution
+    uint256 public waterUsageThreshold;  // Threshold for rewarding
+    
+    // Events
+    event RewardIssued(address indexed farmer, uint256 amount);
+    event WaterUsageChecked(address indexed twinContract, uint256 usage);
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Not authorized");
+        _;
+    }
+
+    constructor(ERC20 _rewardToken, uint256 _waterUsageThreshold) {
+        rewardToken = _rewardToken;
+        admin = msg.sender;
+        waterUsageThreshold = _waterUsageThreshold;
+    }
+
+    // Check water usage for a Twin Contract and issue rewards if needed
+    function checkWaterUsageAndReward(address twinContractAddress) external onlyAdmin {
+        TwinContract twin = TwinContract(twinContractAddress);
+        uint256 waterUsage = twin.getWaterUsage();
+        
+        emit WaterUsageChecked(twinContractAddress, waterUsage);
+        
+        if (waterUsage <= waterUsageThreshold) {
+            uint256 rewardAmount = calculateReward(waterUsage);
+            rewardToken.transfer(twin.owner(), rewardAmount);
+            emit RewardIssued(twin.owner(), rewardAmount);
+        }
+    }
+
+    // Calculate the reward amount based on the water usage
+    function calculateReward(uint256 waterUsage) internal view returns (uint256) {
+        // Example: Simple reward calculation based on water saved
+        return (waterUsageThreshold - waterUsage) * 10;  // Adjust formula as needed
+    }
+
+    // Admin can set a new water usage threshold
+    function setWaterUsageThreshold(uint256 newThreshold) external onlyAdmin {
+        waterUsageThreshold = newThreshold;
+    }
+
+    // Admin can withdraw tokens (if needed for administration purposes)
+    function withdrawTokens(uint256 amount) external onlyAdmin {
+        rewardToken.transfer(admin, amount);
+    }
+}
+
+
+
+#########################################
+BillingContract for Service Provider:
+#########################################
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./RewardsAppContract.sol";
+
+contract BillingContract {
+    ERC20 public billingToken;
+    address public serviceProvider;
+    uint256 public billingRate;  // Rate per liter of water
+
+    mapping(address => uint256) public billingBalances;
+
+    event WaterBillCharged(address indexed farmer, uint256 amount);
+    event WaterBillPaid(address indexed farmer, uint256 amount);
+
+    modifier onlyServiceProvider() {
+        require(msg.sender == serviceProvider, "Not authorized");
+        _;
+    }
+
+    constructor(ERC20 _billingToken, uint256 _billingRate) {
+        billingToken = _billingToken;
+        serviceProvider = msg.sender;
+        billingRate = _billingRate;
+    }
+
+    // Charge water bill based on usage
+    function chargeWaterBill(address farmer, uint256 waterUsage) external onlyServiceProvider {
+        uint256 billAmount = waterUsage * billingRate;
+        billingBalances[farmer] += billAmount;
+        emit WaterBillCharged(farmer, billAmount);
+    }
+
+    // Pay the water bill
+    function payWaterBill(uint256 amount) external {
+        require(billingBalances[msg.sender] >= amount, "Insufficient balance");
+        billingToken.transferFrom(msg.sender, serviceProvider, amount);
+        billingBalances[msg.sender] -= amount;
+        emit WaterBillPaid(msg.sender, amount);
+    }
+
+    // Set a new billing rate
+    function setBillingRate(uint256 newRate) external onlyServiceProvider {
+        billingRate = newRate;
+    }
+}
+
+
+################################################
+CertificationContract for Eco-Foundation
+################################################
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "./RewardsAppContract.sol";
+
+contract CertificationContract {
+    address public ecoFoundationAdmin;
+    uint256 public sustainabilityThreshold;
+
+    mapping(address => bool) public certifications;
+
+    event CertificationGranted(address indexed farmer);
+
+    modifier onlyEcoFoundationAdmin() {
+        require(msg.sender == ecoFoundationAdmin, "Not authorized");
+        _;
+    }
+
+    constructor(uint256 _sustainabilityThreshold) {
+        ecoFoundationAdmin = msg.sender;
+        sustainabilityThreshold = _sustainabilityThreshold;
+    }
+
+    // Grant certification based on water usage
+    function grantCertification(address farmer, uint256 waterUsage) external onlyEcoFoundationAdmin {
+        require(waterUsage <= sustainabilityThreshold, "Usage above threshold");
+        certifications[farmer] = true;
+        emit CertificationGranted(farmer);
+    }
+
+    // Set a new sustainability threshold
+    function setSustainabilityThreshold(uint256 newThreshold) external onlyEcoFoundationAdmin {
+        sustainabilityThreshold = newThreshold;
+    }
+}
