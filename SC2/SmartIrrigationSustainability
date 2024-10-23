@@ -36,7 +36,6 @@ contract SmartIrrigationSustainability {
         uint frequency; // Frequency of irrigation events (number of events per day)
         string reason; // For example: "Soil moisture below the minimum threshold, irrigation needed", "Evapotranspiration rate high, additional irrigation required", "Seasonal adjustment for growth stage, increased water required", "High temperature detected, water application needed", "Scheduled irrigation event", "Post-fertilizer application, water required to facilitate nutrient absorption", "Manual irrigation override by operator", "Drought conditions, supplemental irrigation necessary", etc.
         bool irrigationPerformed;
-       // AnomalyStatus anomalyStatus; // Track the status of the anomaly
     }
 
     struct Farmer {
