@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract SmartIrrigationSystem {
+contract SmartIrrigationSustainability {
 
     // Enum for the status of an anomaly
     enum AnomalyStatus { Reported, InProgress, Resolved }
@@ -70,10 +70,8 @@ contract SmartIrrigationSystem {
     }
 
     mapping(address => bool) public authorizedCompanies;
-    mapping(address => bool) public authorizedGovernment;
     mapping(address=>bool) public RegisteredCertificationAuthorities;
-    // Mapping to track certifications for farms
-    mapping(address => bool) public RegulatedWaterUseCertified;
+    mapping(address => bool) public RegulatedWaterUseCertified; // Mapping to track certifications for farms
     mapping(address => bool) public EfficientWaterManagementCertified;
     mapping(address => bool) public SmartSustainableIrrigationCertified;
     mapping(address => Farmer) public farmers;
@@ -88,31 +86,32 @@ contract SmartIrrigationSystem {
     uint public anomalyCount = 0; // Counter to track anomaly IDs
 
     // Events
-    event FarmerRegistered(address indexed farmer, string name);
-    event LandRegistered(uint indexed landId, address indexed farmer, string location, uint surface);
-    event LandCertified(uint indexed landId, CertificationType certType);
-    event DeviceRegistered(bytes16 indexed devEUI, bytes16 appEUI, bytes16 appKey, string name, bool registered);
-    event AnomalyReported(uint indexed anomalyId, AnomalyType anomalyType, string description, AnomalyStatus status);
-    event AnomalyStatusUpdated(uint indexed anomalyId, AnomalyStatus status);
-    event IrrigationPerformed(address indexed farmer, uint netIrrigationRequirement, uint grossIrrigationRequirement, uint irrigationDuration, uint frequency);
-    event IrrigationPlanUpdated(address indexed farmer, uint newNetIrrigationRequirement, uint newGrossIrrigationRequirement, uint newDuration, uint newFrequency);
-    event IrrigationCompleted(address indexed farmer, uint soilMoistureBefore, uint soilMoistureAfter, uint waterUsed); // Declare IrrigationCompleted event
-    event RegulatedWaterUseCertifiedEvent(address indexed farm);
-    event EfficientWaterManagementCertifiedEvent(address indexed farm);
-    event SmartSustainableIrrigationCertifiedEvent(address indexed farm);
+    event FarmerRegistered(address indexed farmer, string name); // Event for Farmers registration
+    event FarmerRevoked(address indexed farmerAddress); // Event for Farmers revocation
+    event LandRegistered(uint indexed landId, address indexed farmer, string location, uint surface); // Event for land piece registration
+    event LandRevoked(uint indexed landId, address indexed farmer); // Event for land piece revocation
+    event LandCertified(uint indexed landId, CertificationType certType); // Event for land piece certification
+    event DeviceRegistered(bytes16 indexed devEUI, bytes16 appEUI, bytes16 appKey, string name, bool registered); // Event for IoT device registration on the Blockchain
+    event AnomalyReported(uint indexed anomalyId, AnomalyType anomalyType, string description, AnomalyStatus status); // Event for reporting an anomaly in the system
+    event AnomalyStatusUpdated(uint indexed anomalyId, AnomalyStatus status); // Event for updating the status of a reported anomaly
+    event IrrigationPerformed(address indexed farmer, uint netIrrigationRequirement, uint grossIrrigationRequirement, uint irrigationDuration, uint frequency); // Event for performing irrigation based on SDSS recommendations
+    event IrrigationPlanUpdated(address indexed farmer, uint newNetIrrigationRequirement, uint newGrossIrrigationRequirement, uint newDuration, uint newFrequency); // Event for updating the irrigation plan based on SDSS recommendations
+    event IrrigationCompleted(address indexed farmer, uint soilMoistureBefore, uint soilMoistureAfter, uint waterUsed); // Event for confirming that irrigation is completed
+    event RegulatedWaterUseCertifiedEvent(address indexed farm); // Event for certifying a farm under the Regulated Water Use certification
+    event EfficientWaterManagementCertifiedEvent(address indexed farm); // Event for certifying a farm under the Efficient Water Management certification
+    event SmartSustainableIrrigationCertifiedEvent(address indexed farm); // Event for certifying a farm under the Smart Sustainable Irrigation certification 
+    event CA_Authorized(address indexed caAddress); // Event for CA (Certificate Authority) authorization
+    event CA_Revoked(address indexed caAddress); // Event for CA (Certificate Authority) revocation
+    event CompanyAuthorized(address indexed companyAddress); // Event for Company authorization
+    event CompanyRevoked(address indexed companyAddress); // Event for Company revocation
 
-    modifier onlyOwner() {
-        require(msg.sender == manager, "Not authorized");
+    modifier onlyManager() {
+        require(msg.sender == manager, "Not an authorized government personnel.");
         _;
     }
     
     constructor() {
         manager = msg.sender;
-    }
-
-    modifier onlyAuthorizedGovernment() {
-        require(authorizedGovernment[msg.sender], "Not an authorized government personnel.");
-        _;
     }
 
     // Modifier to ensure only CA can certify
@@ -126,23 +125,44 @@ contract SmartIrrigationSystem {
         _;
     }
 
-    // Function to register government personnel
-    function authorizeGovernment(address _personnel) public onlyOwner {
-        authorizedGovernment[_personnel] = true;
+    // Function to authorize Certificate Authority (CA)
+    function authorizeCA(address _ca) public onlyManager {
+        RegisteredCertificationAuthorities[_ca] = true;
+
+        // Emit the event when a CA is authorized
+        emit CA_Authorized(_ca);
     }
 
-    // Function to authorize Certificate Authority (CA)
-    function authorizeCA(address _ca) public onlyOwner {
-        RegisteredCertificationAuthorities[_ca] = true;
+    // Function to revoke Certificate Authority (CA)
+    function Revoke_authorizedCA(address _ca) public onlyManager {
+        require(RegisteredCertificationAuthorities[_ca], "CA is not authorized.");
+
+        RegisteredCertificationAuthorities[_ca] = false;
+
+        // Emit the event when a CA is revoked
+        emit CA_Revoked(_ca);
     }
 
     // Function to register authorized companies
-    function authorizeCompany(address _company) public onlyOwner {
+    function authorizeCompany(address _company) public onlyManager {
         authorizedCompanies[_company] = true;
+
+        // Emit the event when a company is authorized
+        emit CompanyAuthorized(_company);
+    }
+
+    // Function to revoke an authorized company
+    function Revoke_authorizedCompany(address _company) public onlyManager {
+        require(authorizedCompanies[_company], "Company is not authorized.");
+
+        authorizedCompanies[_company] = false;
+
+        // Emit the event when a company is revoked
+        emit CompanyRevoked(_company);
     }
 
     // Function to register a farmer
-    function registerFarmer(address _farmerAddress, string memory _name) public onlyOwner {
+    function registerFarmer(address _farmerAddress, string memory _name) public onlyManager {
         require(!farmers[_farmerAddress].registered, "Farmer is already registered.");
 
         farmers[_farmerAddress] = Farmer({
@@ -154,8 +174,17 @@ contract SmartIrrigationSystem {
         emit FarmerRegistered(_farmerAddress, _name);
     }
 
+    // Function to revoke a farmer
+    function revokeFarmer(address _farmerAddress) public onlyManager {
+        require(farmers[_farmerAddress].registered, "Farmer is not registered.");
+
+        farmers[_farmerAddress].registered = false;
+
+        emit FarmerRevoked(_farmerAddress); // Emit the event
+    }
+
     // Function to register a land piece
-    function registerLand(uint _landId, address _farmerAddress, string memory _location, uint _surface) public onlyOwner {
+    function registerLand(uint _landId, address _farmerAddress, string memory _location, uint _surface) public onlyManager {
         require(farmers[_farmerAddress].registered, "Farmer is not registered.");
 
         landPieces[_landId] = LandPiece({
@@ -181,6 +210,7 @@ contract SmartIrrigationSystem {
         emit LandCertified(_landId, _certType);
     }
 
+    // Function to get Land details
     function getLandDetails(uint _landId) public view returns (address, string memory, uint, CertificationType, bool) {
         LandPiece storage land = landPieces[_landId];
         return (land.farmer, land.location, land.surface, land.certType, land.certified);
@@ -198,7 +228,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to register a LoRaWAN IoT device with AppKey, DevEUI, and AppEUI
-    function registerIoTDevice(bytes8 _devEUI, bytes8 _appEUI, bytes16 _appKey, string memory _name) public onlyOwner {
+    function registerIoTDevice(bytes8 _devEUI, bytes8 _appEUI, bytes16 _appKey, string memory _name) public onlyManager {
         require(!devices[_devEUI].registered, "Device is already registered.");
         require(deviceNames[_name] == 0, "Device name is already used.");
 
@@ -216,7 +246,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to call a registered device using its DevEUI (used by SDSS)
-    function callDeviceByDevEUI(bytes16 _devEUI) public view onlyOwner returns (bytes8, bytes8, bytes16, string memory, bool) {
+    function callDeviceByDevEUI(bytes16 _devEUI) public view onlyManager returns (bytes8, bytes8, bytes16, string memory, bool) {
         require(devices[_devEUI].registered, "Device is not registered.");
 
         // Return device details (DevEUI, name, and registered status)
@@ -225,7 +255,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to call a registered device using its name (used by SDSS)
-    function callDeviceByName(string memory _name) public view onlyOwner returns (bytes8, bytes8, bytes16, string memory, bool) {
+    function callDeviceByName(string memory _name) public view onlyManager returns (bytes8, bytes8, bytes16, string memory, bool) {
         bytes16 devEUI = deviceNames[_name];
         require(devEUI != 0, "Device with this name is not registered.");
 
@@ -237,7 +267,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to report an anomaly
-    function reportAnomaly(AnomalyType _anomalyType, string memory _description) public onlyOwner {
+    function reportAnomaly(AnomalyType _anomalyType, string memory _description) public onlyManager {
         anomalyCount++;
         anomalies[anomalyCount] = Anomaly({
             timestamp: block.timestamp,
@@ -250,7 +280,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to update the status of an anomaly
-    function updateAnomalyStatus(uint _anomalyId, AnomalyStatus _status) public onlyOwner {
+    function updateAnomalyStatus(uint _anomalyId, AnomalyStatus _status) public onlyManager {
         require(anomalies[_anomalyId].timestamp != 0, "Anomaly does not exist.");
         anomalies[_anomalyId].status = _status;
 
@@ -258,7 +288,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to trigger irrigation based on SDSS recommendations
-    function triggerIrrigation(address _farmer, string memory _cropType, uint _netIrrigationRequirement, uint _grossIrrigationRequirement, uint _duration, uint _frequency, string memory _reason) public onlyOwner {
+    function triggerIrrigation(address _farmer, string memory _cropType, uint _netIrrigationRequirement, uint _grossIrrigationRequirement, uint _duration, uint _frequency, string memory _reason) public onlyManager {
         require(!irrigationTriggered, "Irrigation already triggered");
         
         irrigationRecords[_farmer] = IrrigationData({
@@ -277,7 +307,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to confirm irrigation completion directly by SDSS (using Python/Node-RED)
-    function confirmIrrigationCompletionBySDSS(address _farmer, uint _soilMoistureBefore, uint _soilMoistureAfter, uint _waterUsed) public onlyOwner {
+    function confirmIrrigationCompletionBySDSS(address _farmer, uint _soilMoistureBefore, uint _soilMoistureAfter, uint _waterUsed) public onlyManager {
         IrrigationData storage data = irrigationRecords[_farmer];
 
         // Logic to ensure irrigation was performed based on water usage and soil moisture readings
@@ -291,7 +321,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to reset the irrigation status after completion (requires confirmation)
-    function resetIrrigation(address _farmer) public onlyOwner {
+    function resetIrrigation(address _farmer) public onlyManager {
         IrrigationData storage data = irrigationRecords[_farmer];
 
         require(data.irrigationPerformed, "Irrigation is not completed yet.");
@@ -300,7 +330,7 @@ contract SmartIrrigationSystem {
     }
 
     // Function to dynamically update irrigation plans based on SDSS recommendations
-    function updateIrrigationPlan(address _farmer, uint _newNetIrrigationRequirement, uint _newGrossIrrigationRequirement, uint _newDuration, uint _newFrequency) public onlyOwner {
+    function updateIrrigationPlan(address _farmer, uint _newNetIrrigationRequirement, uint _newGrossIrrigationRequirement, uint _newDuration, uint _newFrequency) public onlyManager {
         IrrigationData storage data = irrigationRecords[_farmer];
         data.netIrrigationRequirement = _newNetIrrigationRequirement;
         data.grossIrrigationRequirement = _newGrossIrrigationRequirement;
