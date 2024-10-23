@@ -53,7 +53,7 @@ contract SmartIrrigationSustainability {
         bool certified; // Whether the land has been certified
     }
 
-    struct IoTDevice {
+    struct LoRaWANIoTDevice {
         bytes8 devEUI; // Unique identifier for the device, // 64-bit DevEUI
         bytes8 appEUI; // Application identifier, // 64-bit AppEUI
         bytes16 appKey; // Key used during OTAA join process, // 128-bit AppKey
@@ -75,7 +75,8 @@ contract SmartIrrigationSustainability {
     mapping(address => bool) public SmartSustainableIrrigationCertified;
     mapping(address => Farmer) public farmers;
     mapping(uint => LandPiece) public landPieces;
-    mapping(bytes16 => IoTDevice) public devices; // Mapping of devices by their DevEUI
+    mapping(bytes16 => LoRaWANIoTDevice) public LoRaWAN_EndDevices; // Mapping of LoRaWAN end-devices by their DevEUI
+    mapping(address => bool) public registeredDevices; // Mapping of installed devices, excluding LoRaWAN end-devices
     mapping(string => bytes16) public deviceNames; // Mapping from device names to their DevEUI
     mapping(uint => Anomaly) public anomalies; // Store anomalies with a unique ID
     mapping (address => IrrigationData) public irrigationRecords;
@@ -90,7 +91,8 @@ contract SmartIrrigationSustainability {
     event LandRegistered(uint indexed landId, address indexed farmer, string location, uint surface); // Event for land piece registration
     event LandRevoked(uint indexed landId, address indexed farmer); // Event for land piece revocation
     event LandCertified(uint indexed landId, CertificationType certType); // Event for land piece certification
-    event DeviceRegistered(bytes16 indexed devEUI, bytes16 appEUI, bytes16 appKey, string name, bool registered); // Event for IoT device registration on the Blockchain
+    event LoRaWANDeviceRegistered(bytes16 indexed devEUI, bytes16 appEUI, bytes16 appKey, string name, bool registered); // Event for IoT device registration on the Blockchain
+    event LoRaWANDeviceRevoked(bytes16 indexed devEUI, string name); // Event for LoRaWAN IoT End-Devices revocation
     event AnomalyReported(uint indexed anomalyId, AnomalyType anomalyType, string description, AnomalyStatus status); // Event for reporting an anomaly in the system
     event AnomalyStatusUpdated(uint indexed anomalyId, AnomalyStatus status); // Event for updating the status of a reported anomaly
     event IrrigationPerformed(address indexed farmer, uint netIrrigationRequirement, uint grossIrrigationRequirement, uint irrigationDuration, uint frequency); // Event for performing irrigation based on SDSS recommendations
@@ -103,6 +105,8 @@ contract SmartIrrigationSustainability {
     event CA_Revoked(address indexed caAddress); // Event for CA (Certificate Authority) revocation
     event CompanyAuthorized(address indexed companyAddress); // Event for Company authorization
     event CompanyRevoked(address indexed companyAddress); // Event for Company revocation
+    event DeviceInstalledSuccessfully(address Device, bytes32 IPFShash); // Event for the registration of installed devices, excluding LoRaWAN end-devices
+    event DeviceRevokedSuccessfully(address indexed Device, bytes32 IPFShash); // Event for the revocation of installed devices, excluding LoRaWAN end-devices
 
     modifier onlyManager() {
         require(msg.sender == manager, "Not an authorized government personnel.");
@@ -227,11 +231,11 @@ contract SmartIrrigationSustainability {
     }
 
     // Function to register a LoRaWAN IoT device with AppKey, DevEUI, and AppEUI
-    function registerIoTDevice(bytes8 _devEUI, bytes8 _appEUI, bytes16 _appKey, string memory _name) public onlyManager {
-        require(!devices[_devEUI].registered, "Device is already registered.");
+    function registerLoRaWANIoTEndDevice(bytes8 _devEUI, bytes8 _appEUI, bytes16 _appKey, string memory _name) public onlyManager {
+        require(!LoRaWAN_EndDevices[_devEUI].registered, "Device is already registered.");
         require(deviceNames[_name] == 0, "Device name is already used.");
 
-        devices[_devEUI] = IoTDevice({
+        LoRaWAN_EndDevices[_devEUI] = LoRaWANIoTDevice({
             devEUI: _devEUI,
             appEUI: _appEUI,
             appKey: _appKey,
@@ -241,15 +245,52 @@ contract SmartIrrigationSustainability {
 
         deviceNames[_name] = _devEUI; // Map the name to the DevEUI
 
-        emit DeviceRegistered(_devEUI, _appEUI, _appKey, _name, true);
+        emit LoRaWANDeviceRegistered(_devEUI, _appEUI, _appKey, _name, true);
+    }
+
+    // Function to revoke a LoRaWAN IoT device
+    function revokeLoRaWANIoTEndDevice(bytes8 _devEUI) public onlyManager {
+        require(LoRaWAN_EndDevices[_devEUI].registered, "Device is not registered.");
+
+        // Get the name of the device before revoking it
+        string memory deviceName = LoRaWAN_EndDevices[_devEUI].name;
+
+        // Mark the device as unregistered
+        LoRaWAN_EndDevices[_devEUI].registered = false;
+
+        // Remove the device from the deviceNames mapping
+        delete deviceNames[deviceName];
+
+        // Emit the DeviceRevoked event
+        emit LoRaWANDeviceRevoked(_devEUI, deviceName);
+    }
+
+    // Register installed devices by authorized communities (e.g., IoT Gateways, Servers, and all sensors and actuators that communicate with the Fog Nodes through wireless technologies other than LoRa, etc.)
+    function registerInstalledDevice(address Device, bytes32 IPFShash) public onlyAuthorizedCompany{
+        require(!registeredDevices[Device], "Device is already registered.");
+
+        // Register the device
+        registeredDevices[Device] = true;
+        emit DeviceInstalledSuccessfully(Device, IPFShash);
+    }
+
+    // Function to revoke an installed device
+    function revokeInstalledDevice(address Device, bytes32 IPFShash) public onlyAuthorizedCompany {
+        require(registeredDevices[Device], "Device is not registered.");
+
+        // Revoke the device by marking it as unregistered
+        registeredDevices[Device] = false;
+
+        // Emit event for successful revocation
+        emit DeviceRevokedSuccessfully(Device, IPFShash);
     }
 
     // Function to call a registered device using its DevEUI (used by SDSS)
     function callDeviceByDevEUI(bytes16 _devEUI) public view onlyManager returns (bytes8, bytes8, bytes16, string memory, bool) {
-        require(devices[_devEUI].registered, "Device is not registered.");
+        require(LoRaWAN_EndDevices[_devEUI].registered, "Device is not registered.");
 
         // Return device details (DevEUI, name, and registered status)
-        IoTDevice storage device = devices[_devEUI];
+        LoRaWANIoTDevice storage device = LoRaWAN_EndDevices[_devEUI];
         return (device.devEUI, device.appEUI, device.appKey, device.name, device.registered);
     }
 
@@ -259,7 +300,7 @@ contract SmartIrrigationSustainability {
         require(devEUI != 0, "Device with this name is not registered.");
 
         // Return device details by using the mapped DevEUI
-        IoTDevice storage device = devices[devEUI];
+        LoRaWANIoTDevice storage device = LoRaWAN_EndDevices[devEUI];
 
         // Return all keys: devEUI, appEUI, appKey, along with the name and registration status
         return (device.devEUI, device.appEUI, device.appKey, device.name, device.registered);
