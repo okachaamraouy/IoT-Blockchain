@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./2IaaSNFTToken.sol"; // Import the 2IaaS token contract
+import "./2IaaS-NFT-Token.sol"; // Import the 2IaaS token contract
 
 contract SmartIrrigationSustainability {
 
