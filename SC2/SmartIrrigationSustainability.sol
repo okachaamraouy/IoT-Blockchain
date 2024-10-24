@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "./2IaaSNFTToken.sol"; // Import the 2IaaS token contract
+
 contract SmartIrrigationSustainability {
+
+    SmartIrrigationToken public tokenContract;  // ERC-20 token contract instance
 
     // Enum for the status of an anomaly
     enum AnomalyStatus { Reported, InProgress, Resolved }
@@ -80,6 +84,7 @@ contract SmartIrrigationSustainability {
     mapping(string => bytes16) public deviceNames; // Mapping from device names to their DevEUI
     mapping(uint => Anomaly) public anomalies; // Store anomalies with a unique ID
     mapping (address => IrrigationData) public irrigationRecords;
+    mapping(address => bool) public registeredFarmers; // Mapping to track registered farmers
 
     address public manager; // associated with the government
     bool public irrigationTriggered = false;
@@ -113,8 +118,31 @@ contract SmartIrrigationSustainability {
         _;
     }
     
-    constructor() {
-        manager = msg.sender;
+    constructor(address tokenAddress) {
+        manager = msg.sender; // Set the manager
+        tokenContract = SmartIrrigationToken(tokenAddress);  // Initialize token contract using its address
+    }
+
+    // Reward farmers for efficient water management by minting tokens
+    function rewardFarmer(address farmer, uint256 rewardAmount) public {
+        require(registeredFarmers[farmer], "Farmer is not registered.");
+
+        // Mint tokens to reward the farmer
+        tokenContract.mintTokens(farmer, rewardAmount);
+    }
+
+    // Charge tokens for irrigation services (e.g., water consumption)
+    function chargeForIrrigation(address farmer, uint256 chargeAmount) public {
+        require(registeredFarmers[farmer], "Farmer is not registered.");
+        require(tokenContract.balanceOf(farmer) >= chargeAmount, "Insufficient balance.");
+
+        // Burn tokens as payment for irrigation services
+        tokenContract.burnTokens(farmer, chargeAmount);
+    }
+
+    // Function to check the balance of a farmer
+    function checkFarmerBalance(address farmer) public view returns (uint256) {
+        return tokenContract.balanceOf(farmer);
     }
 
     // Modifier to ensure only CA can certify
@@ -383,4 +411,5 @@ contract SmartIrrigationSustainability {
     function getIrrigationData(address _farmer) public view returns (IrrigationData memory) {
         return irrigationRecords[_farmer];
     }
+
 }
