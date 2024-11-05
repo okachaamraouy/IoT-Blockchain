@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./2IaaS-NFT-Token.sol"; // Import the 2IaaS token contract
+import "./2IaaSTokens.sol"; // Import the 2IaaS token contract
 
 contract SmartIrrigationSustainability {
 
@@ -57,19 +57,22 @@ contract SmartIrrigationSustainability {
         bool certified; // Whether the land has been certified
     }
 
-    struct LoRaWANIoTDevice {
-        bytes8 devEUI; // Unique identifier for the device, // 64-bit DevEUI
-        bytes8 appEUI; // Application identifier, // 64-bit AppEUI
-        bytes16 appKey; // Key used during OTAA join process, // 128-bit AppKey
-        string name;     // Name of the device
-        bool registered; // Status to indicate if the device is registered
-    }
-
     struct Anomaly {
         uint timestamp;
         AnomalyType anomalyType; // Type of anomaly
         string description; // Description of the issue
         AnomalyStatus status; // Status of the anomaly (Reported, InProgress, Resolved)
+    }
+
+    struct LoRaWANIoTDevice {
+        bytes8 devEUI;          // Unique identifier for the device (64-bit)
+        bytes8 appEUI;          // Application identifier (64-bit)
+        bytes16 nwkSKey;        // Network session key (128-bit)
+        bytes16 appSKey;        // Application session key (128-bit)
+        uint16 devNonce;        // 2-byte counter to prevent replay attacks (max value 65535)
+        uint creationTimestamp; // Creation timestamp
+        uint updateTimestamp;   // Last update timestamp
+        bool registered;        // Status to indicate if the device is registered
     }
 
     mapping(address => bool) public authorizedCompanies;
@@ -79,9 +82,8 @@ contract SmartIrrigationSustainability {
     mapping(address => bool) public SmartSustainableIrrigationCertified;
     mapping(address => Farmer) public farmers;
     mapping(uint => LandPiece) public landPieces;
-    mapping(bytes16 => LoRaWANIoTDevice) public LoRaWAN_EndDevices; // Mapping of LoRaWAN end-devices by their DevEUI
+    mapping(bytes8 => LoRaWANIoTDevice) public LoRaWAN_EndDevices; // Mapping of LoRaWAN end-devices by their DevEUI
     mapping(address => bool) public registeredDevices; // Mapping of installed devices, excluding LoRaWAN end-devices
-    mapping(string => bytes16) public deviceNames; // Mapping from device names to their DevEUI
     mapping(uint => Anomaly) public anomalies; // Store anomalies with a unique ID
     mapping (address => IrrigationData) public irrigationRecords;
     mapping(address => bool) public registeredFarmers; // Mapping to track registered farmers
@@ -96,12 +98,12 @@ contract SmartIrrigationSustainability {
     event LandRegistered(uint indexed landId, address indexed farmer, string location, uint surface); // Event for land piece registration
     event LandRevoked(uint indexed landId, address indexed farmer); // Event for land piece revocation
     event LandCertified(uint indexed landId, CertificationType certType); // Event for land piece certification
-    event LoRaWANDeviceRegistered(bytes16 indexed devEUI, bytes16 appEUI, bytes16 appKey, string name, bool registered); // Event for IoT device registration on the Blockchain
-    event LoRaWANDeviceRevoked(bytes16 indexed devEUI, string name); // Event for LoRaWAN IoT End-Devices revocation
+    event LoRaWANDeviceRegistered(bytes8 indexed devEUI,bytes8 appEUI,bytes16 nwkSKey,bytes16 appSKey,uint16 devNonce,uint creationTimestamp,uint updateTimestamp,bool registered); // Event for IoT device registration on the Blockchain
+    event LoRaWANDeviceRevoked(bytes16 indexed devEUI); // Event for LoRaWAN IoT End-Devices revocation
     event AnomalyReported(uint indexed anomalyId, AnomalyType anomalyType, string description, AnomalyStatus status); // Event for reporting an anomaly in the system
     event AnomalyStatusUpdated(uint indexed anomalyId, AnomalyStatus status); // Event for updating the status of a reported anomaly
-    event IrrigationPerformed(address indexed farmer, uint netIrrigationRequirement, uint grossIrrigationRequirement, uint irrigationDuration, uint frequency); // Event for performing irrigation based on SDSS recommendations
-    event IrrigationPlanUpdated(address indexed farmer, uint newNetIrrigationRequirement, uint newGrossIrrigationRequirement, uint newDuration, uint newFrequency); // Event for updating the irrigation plan based on SDSS recommendations
+    event IrrigationPerformed(address indexed farmer, uint netIrrigationRequirement, uint grossIrrigationRequirement, uint irrigationDuration, uint frequency); // Event for performing irrigation based on AI-Driven Expert system recommendations
+    event IrrigationPlanUpdated(address indexed farmer, uint newNetIrrigationRequirement, uint newGrossIrrigationRequirement, uint newDuration, uint newFrequency); // Event for updating the irrigation plan based on AI-Driven Expert system recommendations
     event IrrigationCompleted(address indexed farmer, uint soilMoistureBefore, uint soilMoistureAfter, uint waterUsed); // Event for confirming that irrigation is completed
     event RegulatedWaterUseCertifiedEvent(address indexed farm); // Event for certifying a farm under the Regulated Water Use certification
     event EfficientWaterManagementCertifiedEvent(address indexed farm); // Event for certifying a farm under the Efficient Water Management certification
@@ -112,6 +114,9 @@ contract SmartIrrigationSustainability {
     event CompanyRevoked(address indexed companyAddress); // Event for Company revocation
     event DeviceInstalledSuccessfully(address Device, bytes32 IPFShash); // Event for the registration of installed devices, excluding LoRaWAN end-devices
     event DeviceRevokedSuccessfully(address indexed Device, bytes32 IPFShash); // Event for the revocation of installed devices, excluding LoRaWAN end-devices
+    event RewardIssued(address indexed farmer, uint256 amount);
+    event PenaltyIssued(address indexed farmer, uint256 amount);
+    event DevNonceIncremented(bytes8 indexed devEUI, uint16 newDevNonce);
 
     modifier onlyManager() {
         require(msg.sender == manager, "Not an authorized government personnel.");
@@ -124,11 +129,18 @@ contract SmartIrrigationSustainability {
     }
 
     // Reward farmers for efficient water management by minting tokens
-    function rewardFarmer(address farmer, uint256 rewardAmount) public {
+    function rewardFarmer(address farmer, uint256 rewardAmount) public onlyManager {
         require(registeredFarmers[farmer], "Farmer is not registered.");
-
-        // Mint tokens to reward the farmer
         tokenContract.mintTokens(farmer, rewardAmount);
+        emit RewardIssued(farmer, rewardAmount);
+    }
+
+    // Penalize farmers for excessive water usage by burning tokens
+    function penalizeFarmer(address farmer, uint256 penaltyAmount) public onlyManager {
+        require(registeredFarmers[farmer], "Farmer is not registered.");
+        require(tokenContract.balanceOf(farmer) >= penaltyAmount, "Insufficient balance for penalty.");
+        tokenContract.burnTokens(farmer, penaltyAmount);
+        emit PenaltyIssued(farmer, penaltyAmount);
     }
 
     // Charge tokens for irrigation services (e.g., water consumption)
@@ -201,6 +213,9 @@ contract SmartIrrigationSustainability {
             name: _name,
             registered: true
         });
+        
+        // Ensure the farmer is marked as registered in the registeredFarmers mapping
+        registeredFarmers[_farmerAddress] = true;
 
         emit FarmerRegistered(_farmerAddress, _name);
     }
@@ -209,10 +224,13 @@ contract SmartIrrigationSustainability {
     function revokeFarmer(address _farmerAddress) public onlyManager {
         require(farmers[_farmerAddress].registered, "Farmer is not registered.");
 
+        // Update both mappings to ensure the farmer is no longer considered registered
         farmers[_farmerAddress].registered = false;
+        registeredFarmers[_farmerAddress] = false;
 
         emit FarmerRevoked(_farmerAddress); // Emit the event
     }
+
 
     // Function to register a land piece
     function registerLand(uint _landId, address _farmerAddress, string memory _location, uint _surface) public onlyManager {
@@ -258,39 +276,63 @@ contract SmartIrrigationSustainability {
         return (landPieces[_landId].certType, landPieces[_landId].certified);
     }
 
-    // Function to register a LoRaWAN IoT device with AppKey, DevEUI, and AppEUI
-    function registerLoRaWANIoTEndDevice(bytes8 _devEUI, bytes8 _appEUI, bytes16 _appKey, string memory _name) public onlyManager {
+    // Function to register a LoRaWAN IoT device with DevNonce initialized to 0
+    function registerLoRaWANIoTEndDevice(
+        bytes8 _devEUI,
+        bytes8 _appEUI,
+        bytes16 _nwkSKey,
+        bytes16 _appSKey
+    ) public onlyManager {
         require(!LoRaWAN_EndDevices[_devEUI].registered, "Device is already registered.");
-        require(deviceNames[_name] == 0, "Device name is already used.");
 
         LoRaWAN_EndDevices[_devEUI] = LoRaWANIoTDevice({
             devEUI: _devEUI,
             appEUI: _appEUI,
-            appKey: _appKey,
-            name: _name,
+            nwkSKey: _nwkSKey,
+            appSKey: _appSKey,
+            devNonce: 0, // Initialize DevNonce to 0
+            creationTimestamp: block.timestamp,
+            updateTimestamp: block.timestamp,
             registered: true
         });
 
-        deviceNames[_name] = _devEUI; // Map the name to the DevEUI
-
-        emit LoRaWANDeviceRegistered(_devEUI, _appEUI, _appKey, _name, true);
+        emit LoRaWANDeviceRegistered(
+            _devEUI,
+            _appEUI,
+            _nwkSKey,
+            _appSKey,
+            0,
+            block.timestamp,
+            block.timestamp,
+            true
+        );
     }
+
+    // Function to handle a join request by incrementing DevNonce
+    function joinRequest(bytes8 _devEUI) public onlyManager {
+        require(LoRaWAN_EndDevices[_devEUI].registered, "Device is not registered.");
+        
+        LoRaWANIoTDevice storage device = LoRaWAN_EndDevices[_devEUI];
+
+        // Check if DevNonce has reached its max value (2-byte limit of 65535)
+        require(device.devNonce < type(uint16).max, "DevNonce overflow: Device needs to reset.");
+
+        // Increment DevNonce for each join request
+        device.devNonce += 1;
+        device.updateTimestamp = block.timestamp; // Update the timestamp for the last join request
+
+        emit DevNonceIncremented(_devEUI, device.devNonce);
+    }    
 
     // Function to revoke a LoRaWAN IoT device
     function revokeLoRaWANIoTEndDevice(bytes8 _devEUI) public onlyManager {
         require(LoRaWAN_EndDevices[_devEUI].registered, "Device is not registered.");
 
-        // Get the name of the device before revoking it
-        string memory deviceName = LoRaWAN_EndDevices[_devEUI].name;
-
         // Mark the device as unregistered
         LoRaWAN_EndDevices[_devEUI].registered = false;
 
-        // Remove the device from the deviceNames mapping
-        delete deviceNames[deviceName];
-
         // Emit the DeviceRevoked event
-        emit LoRaWANDeviceRevoked(_devEUI, deviceName);
+        emit LoRaWANDeviceRevoked(_devEUI);
     }
 
     // Register installed devices by authorized communities (e.g., IoT Gateways, Servers, and all sensors and actuators that communicate with the Fog Nodes through wireless technologies other than LoRa, etc.)
@@ -313,25 +355,25 @@ contract SmartIrrigationSustainability {
         emit DeviceRevokedSuccessfully(Device, IPFShash);
     }
 
-    // Function to call a registered device using its DevEUI (used by SDSS)
-    function callDeviceByDevEUI(bytes16 _devEUI) public view onlyManager returns (bytes8, bytes8, bytes16, string memory, bool) {
+    // Function to call a registered device using its DevEUI (used by AI-Driven Expert system)
+    function callDeviceByDevEUI(bytes8 _devEUI) public view onlyManager returns (
+        bytes8, bytes8, bytes16, bytes16, uint16, uint, uint, bool
+    ) {
         require(LoRaWAN_EndDevices[_devEUI].registered, "Device is not registered.");
 
-        // Return device details (DevEUI, name, and registered status)
         LoRaWANIoTDevice storage device = LoRaWAN_EndDevices[_devEUI];
-        return (device.devEUI, device.appEUI, device.appKey, device.name, device.registered);
-    }
-
-    // Function to call a registered device using its name (used by SDSS)
-    function callDeviceByName(string memory _name) public view onlyManager returns (bytes8, bytes8, bytes16, string memory, bool) {
-        bytes16 devEUI = deviceNames[_name];
-        require(devEUI != 0, "Device with this name is not registered.");
-
-        // Return device details by using the mapped DevEUI
-        LoRaWANIoTDevice storage device = LoRaWAN_EndDevices[devEUI];
-
-        // Return all keys: devEUI, appEUI, appKey, along with the name and registration status
-        return (device.devEUI, device.appEUI, device.appKey, device.name, device.registered);
+        
+        // Return all device details as per the updated struct
+        return (
+            device.devEUI,
+            device.appEUI,
+            device.nwkSKey,
+            device.appSKey,
+            device.devNonce,
+            device.creationTimestamp,
+            device.updateTimestamp,
+            device.registered
+        );
     }
 
     // Function to report an anomaly
@@ -355,7 +397,7 @@ contract SmartIrrigationSustainability {
         emit AnomalyStatusUpdated(_anomalyId, _status);
     }
 
-    // Function to trigger irrigation based on SDSS recommendations
+    // Function to trigger irrigation based on AI-Driven Expert system recommendations
     function triggerIrrigation(address _farmer, string memory _cropType, uint _netIrrigationRequirement, uint _grossIrrigationRequirement, uint _duration, uint _frequency, string memory _reason) public onlyManager {
         require(!irrigationTriggered, "Irrigation already triggered");
         
@@ -374,8 +416,8 @@ contract SmartIrrigationSustainability {
         emit IrrigationPerformed(_farmer, _netIrrigationRequirement, _grossIrrigationRequirement, _duration, _frequency);
     }
 
-    // Function to confirm irrigation completion directly by SDSS (using Python/Node-RED)
-    function confirmIrrigationCompletionBySDSS(address _farmer, uint _soilMoistureBefore, uint _soilMoistureAfter, uint _waterUsed) public onlyManager {
+    // Function to confirm irrigation completion directly by AI-Driven Expert system (using Python/Node-RED)
+    function confirmIrrigationCompletion(address _farmer, uint _soilMoistureBefore, uint _soilMoistureAfter, uint _waterUsed) public onlyManager {
         IrrigationData storage data = irrigationRecords[_farmer];
 
         // Logic to ensure irrigation was performed based on water usage and soil moisture readings
@@ -397,7 +439,7 @@ contract SmartIrrigationSustainability {
         data.irrigationPerformed = false; // Reset irrigation status for the next cycle
     }
 
-    // Function to dynamically update irrigation plans based on SDSS recommendations
+    // Function to dynamically update irrigation plans based on AI-Driven Expert system recommendations
     function updateIrrigationPlan(address _farmer, uint _newNetIrrigationRequirement, uint _newGrossIrrigationRequirement, uint _newDuration, uint _newFrequency) public onlyManager {
         IrrigationData storage data = irrigationRecords[_farmer];
         data.netIrrigationRequirement = _newNetIrrigationRequirement;
