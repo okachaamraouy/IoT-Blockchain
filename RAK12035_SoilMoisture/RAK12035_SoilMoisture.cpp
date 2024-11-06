@@ -22,6 +22,7 @@
  * Constructor.                                                         *
  * Optionally set sensor I2C address if different from default          *
  *----------------------------------------------------------------------*/
+
 RAK12035::RAK12035(uint8_t addr) : _sensorAddress(addr)
 {
 	// nothing to do ... Wire.begin needs to be put outside of class
