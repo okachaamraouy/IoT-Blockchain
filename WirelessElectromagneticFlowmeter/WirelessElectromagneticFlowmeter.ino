@@ -3,7 +3,7 @@
 #include <LoRaWan-RAK4630.h>         // LoRa library for RAK4631
 #include <SPI.h>
 
-#define SEND_INTERVAL 900000         // 15 minutes in milliseconds
+#define SEND_INTERVAL 300000         // 5 minutes in milliseconds
 #define RS485_BAUDRATE 115200        // Baud rate for RS485 communication
 
 float accumulatedLiters = 0;         // Accumulated water consumption in liters
