@@ -81,4 +81,5 @@ void loop()
 	Serial.print(temperature / 10);
 	Serial.println(" *C");
 	delay(1000);
+	
 }
